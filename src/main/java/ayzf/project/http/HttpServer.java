@@ -1,5 +1,6 @@
-package ayzf.project;
+package ayzf.project.http;
 
+import ayzf.project.Main;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * @Author 暗影之风
+ * @Author 暗影之风s
  * @CreateTime 2024-04-28 03:03:25
  * @Description HTTP服务器
  */
@@ -190,6 +191,15 @@ public final class HttpServer
         }
         catch (Exception ignored)
         {}
+    }
+
+    public static String findHeader(ArrayList<String> arrayList, String key)//a:b,c:d -> a : b
+    {
+        for (String s : arrayList)
+            if ((s + ":").toLowerCase().startsWith(key))
+                return s.substring(s.indexOf(':') + ":".length()).trim();
+
+        return "";
     }
 
     public static ArrayList<HashMap<String, String>> getParam(String message)

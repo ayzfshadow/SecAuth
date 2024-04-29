@@ -1,4 +1,4 @@
-package ayzf.project;
+package ayzf.project.util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,9 +53,13 @@ public class JSONRecord
         try
         {
             JSONArray jsonArray = new JSONArray(receivedUsers);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(token + "/" + FILE_TAG));
-            writer.write(jsonArray.toString());
-            writer.close();
+            File dir;
+            if ((!(dir = new File(token)).exists() && dir.mkdirs()) || dir.exists())
+            {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(token + "/" + FILE_TAG));
+                writer.write(jsonArray.toString());
+                writer.close();
+            }
         }
         catch (IOException ignored)
         {}

@@ -1,6 +1,6 @@
-package ayzf.project;
+package ayzf.project.http;
 
-import asqnw.project.interfaces.MapString;
+import ayzf.project.interfaces.MapString;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -27,6 +27,7 @@ public class HttpClient
         this.cookie = new NetCookie<>();
         this.requestProperty = new MapString() {{
             put("Connection", "keep-alive");
+            put("Content-Type", "application/json");
         }};
     }
 

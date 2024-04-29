@@ -1,4 +1,4 @@
-package asqnw.project.interfaces;
+package ayzf.project.interfaces;
 
 /**
  * @Author 暗影之风

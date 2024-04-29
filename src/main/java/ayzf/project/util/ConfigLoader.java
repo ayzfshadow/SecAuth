@@ -1,4 +1,4 @@
-package ayzf.project;
+package ayzf.project.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,6 +22,11 @@ public class ConfigLoader
         {
             this.properties.load(fis);
         }
+    }
+
+    public Properties getObject()
+    {
+        return this.properties;
     }
 
     public String getProperty(String key)

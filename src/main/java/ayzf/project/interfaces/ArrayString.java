@@ -1,4 +1,4 @@
-package asqnw.project.interfaces;
+package ayzf.project.interfaces;
 
 import java.util.ArrayList;
 
