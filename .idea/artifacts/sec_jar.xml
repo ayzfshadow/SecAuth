@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="sec:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/sec_jar</output-path>
+    <root id="archive" name="sec.jar">
+      <element id="module-output" name="sec" />
+      <element id="library" level="application" name="v3" />
+      <element id="library" level="application" name="sweetalert2" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/mysql-connector-j-8.3.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/json/json/20231013/json-20231013.jar" path-in-jar="/" />
+      <element id="library" level="application" name="jquery-1.8.0" />
+    </root>
+  </artifact>
+</component>

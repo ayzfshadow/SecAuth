@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>NXA-电量补足</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-container {
+            max-width: 90%;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="captcha"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-container .captcha-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .ad-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .ad-container p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .VAPTCHA-init-main {
+            display: table;
+            width: 100%;
+            height: 100%;
+            background-color: #eeeeee;
+        }
+
+        .VAPTCHA-init-loading {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .VAPTCHA-init-loading>a {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: none;
+        }
+
+        .VAPTCHA-init-loading .VAPTCHA-text {
+            font-family: sans-serif;
+            font-size: 12px;
+            color: #cccccc;
+            vertical-align: middle;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script src="https://v-cn.vaptcha.com/v3.js"></script>
+</head>
+<body>
+<h1>NXA-电量补足</h1>
+
+<div class="form-container">
+    <form id="myForm">
+        <label for="activityToken">活动令牌：</label>
+        <input type="text" id="activityToken" required>
+        <br>
+        <label for="qqNumber">QQ号码：</label>
+        <input type="text" id="qqNumber" required>
+        <br>
+        <label>验证码：</label>
+        <div id="VAPTCHAContainer" style="width: 300px;height: 36px;">
+            <div class="VAPTCHA-init-main">
+                <div class="VAPTCHA-init-loading">
+                    <a href="/" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48px" height="60px" viewBox="0 0 24 30" style="enable-background: new 0 0 50 50; width: 14px; height: 14px; vertical-align: middle" xml:space="preserve">
+                            <rect x="0" y="9.22656" width="4" height="12.5469" fill="#CCCCCC">
+                                <animate attributeName="height" attributeType="XML" values="5;21;5" begin="0s" dur="0.6s" repeatCount="indefinite"></animate>
+                                <animate attributeName="y" attributeType="XML" values="13; 5; 13" begin="0s" dur="0.6s" repeatCount="indefinite"></animate>
+                            </rect>
+                                <rect x="10" y="5.22656" width="4" height="20.5469" fill="#CCCCCC">
+                                <animate attributeName="height" attributeType="XML" values="5;21;5" begin="0.15s" dur="0.6s" repeatCount="indefinite"></animate>
+                                <animate attributeName="y" attributeType="XML" values="13; 5; 13" begin="0.15s" dur="0.6s" repeatCount="indefinite"></animate>
+                            </rect>
+                                <rect x="20" y="8.77344" width="4" height="13.4531" fill="#CCCCCC">
+                                <animate attributeName="height" attributeType="XML" values="5;21;5" begin="0.3s" dur="0.6s" repeatCount="indefinite"></animate>
+                                <animate attributeName="y" attributeType="XML" values="13; 5; 13" begin="0.3s" dur="0.6s" repeatCount="indefinite"></animate>
+                            </rect>
+                        </svg>
+                    </a>
+                    <span class="VAPTCHA-text">Vaptcha Initializing...</span>
+                </div>
+            </div>
+        </div>
+        <br>
+        <label>出现问题联系QQ：2070560848</label>
+        <button type="submit" id="submitBtn" disabled>提交</button>
+    </form>
+</div>
+
+<script>
+    Swal.fire({
+        title: '公告',
+        html: '<p>欢迎使用。目前活动正常运行</p>',
+        showCloseButton: true,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        allowEnterKey: true
+    });
+
+    vaptcha({
+        vid: '6194b5bfab247986c1505466',
+        mode: 'click',
+        scene: 0,
+        container: '#VAPTCHAContainer',
+        area: 'auto',
+    }).then(function (VAPTCHAObj) {
+        VAPTCHAObj.render();
+        VAPTCHAObj.listen('pass', function () {
+            let isRequesting = false;
+            const host = window.location.host;
+            const serverToken = VAPTCHAObj.getServerToken();
+            const data = {
+                server: serverToken.server,
+                token: serverToken.token,
+            }
+            document.getElementById('submitBtn').disabled = false;
+
+            document.getElementById('myForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                if (isRequesting) {
+                    return;
+                }
+
+                const activityToken = document.getElementById('activityToken').value;
+                const qqNumber = document.getElementById('qqNumber').value;
+                const url = 'https://' + host + '/doAuth';
+                const params = new URLSearchParams();
+                params.append('activityToken', activityToken);
+                params.append('qqNumber', qqNumber);
+                params.append('vaptcha', JSON.stringify(data));
+
+                isRequesting = true;
+
+                fetch(url, {
+                    method: 'POST',
+                    body: params
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('请求失败');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        Swal.fire({
+                            title: '服务器返回',
+                            text: data,
+                            icon: 'success'
+                        });
+                    })
+                    .catch(error => {
+                        console.error('发生错误:', error);
+                        Swal.fire({
+                            title: '发生错误',
+                            text: '请求失败',
+                            icon: 'error'
+                        });
+                    })
+                    .finally(() => {
+                        isRequesting = false;
+                        VAPTCHAObj.reset()
+                    });
+            });
+        })
+    })
+</script>
+</body>
+</html>
