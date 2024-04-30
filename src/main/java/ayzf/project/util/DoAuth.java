@@ -17,6 +17,7 @@ public class DoAuth
         AtomicReference<Byte> limitT = new AtomicReference<>((byte) -1);
         AtomicLong limitV = new AtomicLong(0L);
         AtomicLong addLen = new AtomicLong(0L);
+        AtomicLong endTime = new AtomicLong(0L);
         Main.configLoader.getObject().forEach((key, value) -> {
             String keyStr = (String) key;
             if (keyStr.endsWith(".activityToken") && Main.configLoader.getProperty(keyStr).equals(activityToken))
@@ -25,12 +26,16 @@ public class DoAuth
                 limitT.set(Byte.parseByte(Main.configLoader.getProperty(baseKey + ".limitT")));
                 limitV.set(Long.parseLong(Main.configLoader.getProperty(baseKey + ".limitV")));
                 addLen.set(Long.parseLong(Main.configLoader.getProperty(baseKey + ".addLen")));
+                endTime.set(Long.parseLong(Main.configLoader.getProperty(baseKey + ".endTime")));
             }
         });
 
         if (limitT.get() == -1)
             return "输入的令牌活动不存在";
-
+        if (System.currentTimeMillis() / 1000 > endTime.get())
+            return "当前活动已结束，请联系管理员";
+        if (JSONRecord.isAlreadyReceived(id, activityToken))
+            return "当前用户已经参加指定的活动，不可重复参加";
         Connection conn = null;
         try
         {
@@ -47,6 +52,7 @@ public class DoAuth
                 long autExpireTime = userResultSet.getLong(Main.configLoader.getProperty("SQL_ROW_AUTH"));
                 if (autExpireTime > 1893427200L)//若授权时间大于2030-01-01 00:00:00视为永久，直接拒绝操作
                     return "尊贵的永久授权用户您无需参加本活动";
+
                 String authTime = sdf.format(new Date(autExpireTime * 1000));
                 if (limitT.get() == 0 || limitT.get() == 1)
                 {
@@ -69,18 +75,16 @@ public class DoAuth
                 else
                     return "配置活动出现问题，请联系管理员";
 
-                if (JSONRecord.isAlreadyReceived(id, activityToken))
-                    return "当前用户已经参加指定的活动，不可重复参加";
-                else
-                    JSONRecord.confirmReceived(id, activityToken);
-
                 long newExpireTime = autExpireTime + addLen.get();
-                String updateQuery = "UPDATE " + Main.configLoader.getProperty("SQL_DB") + " SET `" + Main.configLoader.getProperty("SQL_ROW_AUTH") + "` = ? WHERE " + Main.configLoader.getProperty("SQL_ROW_ID") + " = ?";
+                String updateQuery = "UPDATE " + Main.configLoader.getProperty("SQL_FORM") + " SET `" + Main.configLoader.getProperty("SQL_ROW_AUTH") + "` = ? WHERE " + Main.configLoader.getProperty("SQL_ROW_ID") + " = ?";
                 PreparedStatement updateStatement = conn.prepareStatement(updateQuery);
                 updateStatement.setLong(1, newExpireTime);
                 updateStatement.setLong(2, id);
                 if (updateStatement.executeUpdate() > 0)
+                {
+                    JSONRecord.confirmReceived(id, activityToken);
                     return "授权已成功更新<br>旧授权时间：" + sdf.format(new Date(autExpireTime * 1000)) + "<br>新授权时间：" + sdf.format(new Date(newExpireTime * 1000));
+                }
                 else
                     return "授权更新失败，写入数据出现错误，请联系管理员";
             }
