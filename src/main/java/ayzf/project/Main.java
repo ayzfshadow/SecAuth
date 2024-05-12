@@ -82,7 +82,28 @@ public class Main
                         JSONObject vaptcha = new JSONObject(HttpServer.findParam(param, "vaptcha"));
                         vaptcha = new JSONObject(new HttpClient().postReqStr(Pattern.matches("http(s)?://.*\\.vaptcha\\.(net|com)/verify", s = vaptcha.getString("server")) ? s : "", "{\"id\": \"" + vaptcha_id + "\",\"secretkey\": \"" + configLoader.getProperty("VAPTCHA_KEY") + "\",\"scene\": " + vaptcha_sence + ",\"token\": \"" + vaptcha.getString("token") + "\",\"ip\": \"" + userIp + "\"}"));
                         if (vaptcha.getInt("success") == 1)
-                            response.put("200 OK", DoAuth.execute(HttpServer.findParam(param, "activityToken"), Long.parseLong(HttpServer.findParam(param, "qqNumber"))));
+                        {
+                            String qqInput = HttpServer.findParam(param, "qqNumber");
+                            long qq;
+                            String supplement;
+                            try
+                            {
+                                qq = Long.parseLong(qqInput);
+                                supplement = "";
+                            }
+                            catch (NumberFormatException ignored)
+                            {
+                                String[] data = qqInput.split(" ", 2);
+                                if (data.length == 2)
+                                {
+                                    qq = Long.parseLong(data[0]);
+                                    supplement = data[1];
+                                }
+                                else
+                                    throw new NumberFormatException();
+                            }
+                            response.put("200 OK", DoAuth.execute(HttpServer.findParam(param, "activityToken"), qq, supplement));
+                        }
                         else
                             response.put("200 OK", "验证不通过，错误如下：" + vaptcha.getString("msg"));
                     }
@@ -201,7 +222,7 @@ public class Main
                         "            vertical-align: middle;\n" +
                         "        }\n" +
                         "    </style>\n" +
-                        "    <script src=\"https://cdn.jsdelivr.net/npm/sweetalert2@8\"></script>\n" +
+                        "    <script src=\"https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js\"></script>\n" +
                         "    <script src=\"https://cdn.bootcdn.net/ajax/libs/jquery/1.8.0/jquery-1.8.0.min.js\"></script>\n" +
                         "    <script src=\"https://v-cn.vaptcha.com/v3.js\"></script>\n" +
                         "</head>\n" +

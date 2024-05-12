@@ -12,7 +12,7 @@ public class DoAuth
 {
     //limitT 0 -> limitV为注册时间不增加, 1 -> limitV为注册时间增加, 2 -> 当前授权时间满足limitV不增加, 3 -> 当前授权时间满足limitV增加
     //addLen 增加量
-    public static String execute(String activityToken, long id)
+    public static String execute(String activityToken, long id, String... supplement)
     {
         AtomicReference<Byte> limitT = new AtomicReference<>((byte) -1);
         AtomicReference<String> limitV = new AtomicReference<>("");
@@ -34,7 +34,7 @@ public class DoAuth
             return "输入的令牌活动不存在";
         if (System.currentTimeMillis() / 1000 > endTime.get())
             return "当前活动已结束，请联系管理员";
-        if (limitT.get() == 5)
+        if (limitT.get() == 5 && addLen.get().isEmpty())
             return limitV.get();
         if (JSONRecord.isAlreadyReceived(id, activityToken))
             return "当前用户已经参加指定的活动，不可重复参加";
@@ -51,6 +51,8 @@ public class DoAuth
             {
                 if (limitT.get() == 4)
                     return userResultSet.getString(addLen.get());
+                if (limitT.get() == 5)
+                    return userResultSet.getString(addLen.get()).equals(supplement[0]) ? "验证成功" : "验证失败";
                 else
                 {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
